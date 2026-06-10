@@ -83,6 +83,11 @@
                     <i class="fa-solid fa-circle-info w-5"></i>
                     <span>Control Panel Guide</span>
                 </a>
+                <a href="#simulator" onclick="switchSection('simulator')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl transition duration-150 text-slate-300 hover:bg-slate-800 hover:text-white border border-teal-500/20 bg-teal-500/5 pulse-subtle" id="link-simulator">
+                    <i class="fa-solid fa-mobile-screen w-5 text-teal-400 animate-bounce"></i>
+                    <span class="font-semibold text-teal-300">Live Phone Preview</span>
+                    <span class="ml-auto inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-teal-400 text-slate-900">NEW</span>
+                </a>
                 <a href="#settings" onclick="switchSection('settings')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl transition duration-150 text-slate-300 hover:bg-slate-800 hover:text-white" id="link-settings">
                     <i class="fa-solid fa-gears w-5"></i>
                     <span>Company Rules</span>
@@ -459,6 +464,105 @@
                 </div>
             </section>
 
+            <!-- SECTION 6: LIVE PHONE SIMULATOR -->
+            <section id="sec-simulator" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold header-font text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-mobile-screen-button text-teal-600"></i>
+                            <span>Live Employee Mobile App Preview</span>
+                        </h2>
+                        <p class="text-sm text-slate-500">Interact with a simulated representation of what your employees see on their native Android mobile app! Real-time synced with your database settings.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-150 text-green-800 border border-green-250">
+                            <span class="h-1.5 w-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>Live Simulation Feed
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <!-- LEFT COLUMN: SIMULATOR CONTROLS -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <!-- Quick Config Link card -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                            <h2 class="font-display font-semibold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2 text-base">
+                                <i class="fa-solid fa-circle-play text-teal-600"></i>
+                                <span>1. Select Simulated Employee</span>
+                            </h2>
+                            <p class="text-xs text-slate-500 leading-relaxed">Choose an employee from your current roster registers. New entries or modifications you make in the <strong class="text-slate-700">Employee Roster</strong> tab will automatically update here!</p>
+                            
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-semibold text-slate-600">Active User Logged:</label>
+                                <select id="simEmployeeSelect" onchange="changeSimEmployee()" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm bg-white">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500 font-medium">Security PIN (App Password):</span>
+                                    <span id="simEmpPin" class="font-mono font-bold text-slate-900 bg-slate-200 px-1.5 py-0.5 rounded">9081</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500 font-medium">Designation:</span>
+                                    <span id="simEmpDesignation" class="font-semibold text-slate-800">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500 font-medium">Daily Standard Wage:</span>
+                                    <span id="simEmpWage" class="font-bold text-teal-600">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Card on how to test -->
+                        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 space-y-3">
+                            <div class="flex items-center space-x-2 text-amber-800 font-bold text-sm">
+                                <i class="fa-regular fa-lightbulb text-lg"></i>
+                                <span>Dynamic Sync Integration Tutorial</span>
+                            </div>
+                            <ul class="text-xs text-slate-600 space-y-2 list-disc pl-4 leading-relaxed">
+                                <li>Navigate to the <span class="font-semibold text-slate-700">Company Rules</span> tab, change standard timings or the company name, and look back here. The phone screen instantly reflects those company parameters!</li>
+                                <li>Try adding a live news alert in <span class="font-semibold text-slate-700">Announcements</span>, then switch to the simulated phone's "Announcements Feed". You'll find it rendered in high-definition inside the device!</li>
+                                <li>Once you are happy with the simulated preview, click <span class="font-bold text-teal-700">Push Configuration to GitHub</span> to make these updates globally active for real APK users!</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Mini Simulation logs -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-3">
+                            <h2 class="font-display font-semibold text-slate-900 border-b border-slate-100 pb-2 text-sm flex items-center justify-between">
+                                <span class="flex items-center space-x-1.5"><i class="fa-solid fa-terminal text-teal-600 text-xs"></i> <span>Simulation Activity Logs</span></span>
+                                <button onclick="clearSimLogs()" class="text-[10px] text-slate-400 hover:text-red-500 font-bold">Clear</button>
+                            </h2>
+                            <div id="simLogList" class="space-y-1.5 max-h-32 overflow-y-auto text-[10px] font-mono text-slate-500 leading-normal">
+                                <div>[Sim System] Simulator engine listening on state buffers. Select a user to log in.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: INTERACTIVE DEVICE -->
+                    <div class="lg:col-span-7 flex justify-center py-4">
+                        <!-- Physical Smartphone Framework -->
+                        <div class="relative bg-slate-950 p-[12px] pb-[14px] rounded-[50px] border-[5px] border-slate-850 shadow-2xl w-[320px] sm:w-[350px] shrink-0 h-[640px] flex flex-col">
+                            <!-- Top Speaker grill & Camera Notch inside layout -->
+                            <div class="w-full h-6 flex items-center justify-center sticky top-0 z-30">
+                                <div class="w-24 h-4 bg-slate-950 rounded-b-xl flex items-center justify-center -mt-3">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-slate-800"></div>
+                                </div>
+                            </div>
+
+                            <!-- Screen Container -->
+                            <div id="simScreen" class="w-full h-full bg-slate-50 rounded-[38px] overflow-hidden flex flex-col relative border border-slate-900 shadow-inner select-none z-10 text-slate-800 font-sans text-xs">
+                                <!-- SIMULATOR CONTENTS: POPULATED DYNAMICALLY via updateSimUi() -->
+                            </div>
+                            
+                            <!-- Bottom hardware thumb slide bar -->
+                            <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-24 h-1 bg-slate-800 rounded-full z-20"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
         </main>
     </div>
 
@@ -670,6 +774,8 @@
             // Set current preview
             if (sectionId === 'payload') {
                 updateJsonPreview();
+            } else if (sectionId === 'simulator') {
+                initSimulator();
             }
 
             // Close mobile menu
@@ -969,6 +1075,10 @@
             renderRosterList();
             renderAnnList();
             updateJsonPreview();
+
+            // Sync Simulator Options dropdown and Screen elements
+            updateSimEmployeeSelect();
+            updateSimUi();
         }
 
         // --- COMPANY SETTINGS ---
@@ -1330,6 +1440,603 @@
                 "'": '&#039;'
             };
             return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // ==========================================
+        //         LIVE PHONE SIMULATOR ENGINE
+        // ==========================================
+        let simState = {
+            currentTab: 'home', // 'home', 'logs', 'announcements', 'leave'
+            isLogged: false,
+            enteredPin: '',
+            isCheckingIn: false, // For biometric shutter animations
+            punchedIn: false, // Currently checked-in status
+            punchInTime: null, // Check-in timestamp
+            currentEmployee: null,
+            logsList: [],
+            leavesList: [
+                { id: 101, start: "2026-06-15", end: "2026-06-17", type: "Annual", reason: "Family wellness trip", status: "Approved" }
+            ]
+        };
+
+        function addSimLog(msg) {
+            const timeStr = new Date().toLocaleTimeString();
+            const logBox = document.getElementById('simLogList');
+            if (logBox) {
+                const row = document.createElement('div');
+                row.className = "hover:text-teal-400 border-b border-slate-50/5 py-0.5";
+                row.innerHTML = `<span class="text-teal-600 select-none mr-1">[${timeStr}]</span> ${escapeHtml(msg)}`;
+                logBox.appendChild(row);
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+        }
+
+        function clearSimLogs() {
+            const logBox = document.getElementById('simLogList');
+            if (logBox) {
+                logBox.innerHTML = `<div>[Sim System] Logs cleared. Engine listening...</div>`;
+            }
+        }
+
+        function updateSimEmployeeSelect() {
+            const select = document.getElementById('simEmployeeSelect');
+            if (!select) return;
+
+            const employees = appState.remote_employees || [];
+            
+            // Retain selection if valid
+            const prevVal = select.value;
+            select.innerHTML = '';
+
+            if (employees.length === 0) {
+                select.innerHTML = '<option value="">No Users Configured</option>';
+                return;
+            }
+
+            employees.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp.id;
+                opt.textContent = `${emp.name} (${emp.designation || 'Staff'})`;
+                select.appendChild(opt);
+            });
+
+            if (prevVal && [...select.options].some(o => o.value == prevVal)) {
+                select.value = prevVal;
+            } else {
+                select.value = employees[0].id;
+            }
+        }
+
+        function initSimulator() {
+            updateSimEmployeeSelect();
+            if (!simState.currentEmployee) {
+                changeSimEmployee();
+            } else {
+                updateSimUi();
+            }
+        }
+
+        function changeSimEmployee() {
+            const select = document.getElementById('simEmployeeSelect');
+            if (!select) return;
+            const empId = select.value;
+            const employees = appState.remote_employees || [];
+            const emp = employees.find(e => e.id == empId);
+
+            if (emp) {
+                simState.currentEmployee = emp;
+                simState.enteredPin = '';
+                simState.isLogged = false;
+                simState.punchedIn = false;
+                simState.isCheckingIn = false;
+                
+                document.getElementById('simEmpPin').textContent = emp.password || '1122';
+                document.getElementById('simEmpDesignation').textContent = emp.designation || 'Staff';
+                document.getElementById('simEmpWage').textContent = '₹' + (emp.salary_per_day || 1200).toLocaleString('en-IN') + ' / day';
+                
+                addSimLog(`Switched identities to: ${emp.name} (ID: ${emp.id}). Keypad gate is lock-secured.`);
+                updateSimUi();
+            }
+        }
+
+        function switchSimTab(tabId) {
+            simState.currentTab = tabId;
+            addSimLog(`Switched simulator app page layout view to tab: "${tabId.toUpperCase()}"`);
+            updateSimUi();
+        }
+
+        function pressSimKey(key) {
+            if (!simState.currentEmployee) return;
+            const correctPin = String(simState.currentEmployee.password || '1122').trim();
+
+            if (key === 'clear') {
+                simState.enteredPin = '';
+            } else {
+                if (simState.enteredPin.length < 4) {
+                    simState.enteredPin += key;
+                }
+                
+                if (simState.enteredPin.length === 4) {
+                    if (simState.enteredPin === correctPin) {
+                        simState.isLogged = true;
+                        addSimLog(`Credentials accepted for ${simState.currentEmployee.name}. Welcome aboard!`);
+                    } else {
+                        addSimLog(`Authentication Rejected! Entered PIN "${simState.enteredPin}" does not match password PIN "${correctPin}".`);
+                        alert(`ACCESS DENIED\nPIN "${simState.enteredPin}" is incorrect for ${simState.currentEmployee.name}. Try typing "${correctPin}" or click 'Auto-Login'.`);
+                        simState.enteredPin = '';
+                    }
+                }
+            }
+            updateSimUi();
+        }
+
+        function simulateAutoLogin() {
+            if (!simState.currentEmployee) return;
+            simState.enteredPin = String(simState.currentEmployee.password || '1122').trim();
+            simState.isLogged = true;
+            addSimLog(`Auto login bypassed successfully. Active session started.`);
+            updateSimUi();
+        }
+
+        function triggerSimCheckIn() {
+            if (simState.isCheckingIn) return;
+            
+            simState.isCheckingIn = true;
+            addSimLog("Face Scanner Biometrics shutter triggered. Initiating security preview...");
+            updateSimUi();
+
+            // Simulate camera scan sweep
+            setTimeout(() => {
+                simState.isCheckingIn = false;
+                simState.punchedIn = !simState.punchedIn;
+                
+                if (simState.punchedIn) {
+                    simState.punchInTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    addSimLog(`Punched Shift Attendance: IN at ${simState.punchInTime}. Base wage accrual rate activated.`);
+                } else {
+                    addSimLog(`Punched Shift Attendance: OUT. Duty ended. Wage ledger logs successfully recorded.`);
+                }
+                updateSimUi();
+            }, 2500);
+        }
+
+        function dispatchSimLeave(e) {
+            e.preventDefault();
+            const start = document.getElementById('simLeaveStart').value;
+            const end = document.getElementById('simLeaveEnd').value;
+            const type = document.getElementById('simLeaveType').value;
+            const reason = document.getElementById('simLeaveReason').value.trim();
+
+            if (!start || !end || !reason) {
+                alert("Please fill in leave dates and simulated reasons.");
+                return;
+            }
+
+            const newLeave = {
+                id: Date.now(),
+                start: start,
+                end: end,
+                type: type,
+                reason: reason,
+                status: "Pending Hub Review"
+            };
+
+            simState.leavesList.unshift(newLeave);
+            addSimLog(`Sent leave dispatch application: ${type} Request from ${start} to ${end}. Reason: "${reason}"`);
+            
+            // Switch view immediately
+            document.getElementById('simLeaveFormBlock').innerHTML = `
+                <div class="bg-teal-50 border border-teal-200 text-teal-800 p-4 rounded-xl text-center space-y-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl animate-bounce text-teal-600"></i>
+                    <h5 class="font-bold text-sm">Application Dispatched!</h5>
+                    <p class="text-[10px] leading-relaxed text-teal-700">Your leave request is queued under corporate HR evaluation list. Status updates live.</p>
+                    <button onclick="updateSimUi()" class="mt-2 bg-teal-600 text-white font-semibold px-3 py-1 rounded text-[10px]">Apply Another</button>
+                </div>
+            `;
+        }
+
+        function updateSimUi() {
+            const screen = document.getElementById('simScreen');
+            if (!screen) return;
+
+            const emp = simState.currentEmployee;
+            if (!emp) {
+                screen.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center p-6 text-center space-y-3 bg-slate-100">
+                        <i class="fa-solid fa-users-slash text-4xl text-slate-300"></i>
+                        <h4 class="font-bold text-slate-600 text-sm">No Employee Profile Loaded</h4>
+                        <p class="text-[11px] text-slate-400">Please register employees under 'Employee Roster' tab first to preview device simulation.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const companyName = (appState.company_settings && appState.company_settings.company_name) || "OfficePro Enterprise";
+            const shiftStart = (appState.company_settings && appState.company_settings.working_hours_start) || "09:00";
+            const shiftEnd = (appState.company_settings && appState.company_settings.working_hours_end) || "18:00";
+
+            // If NOT LOGGED IN
+            if (!simState.isLogged) {
+                let indicators = '';
+                for (let i = 0; i < 4; i++) {
+                    if (i < simState.enteredPin.length) {
+                        indicators += `<div class="w-3.5 h-3.5 rounded-full bg-teal-500 scale-110 shadow-sm shadow-teal-500/20 transition duration-100"></div>`;
+                    } else {
+                        indicators += `<div class="w-3.5 h-3.5 rounded-full bg-slate-200 border border-slate-300 transition duration-100"></div>`;
+                    }
+                }
+
+                screen.innerHTML = `
+                    <!-- Lock Screen View -->
+                    <div class="h-full flex flex-col bg-slate-900 text-white p-6 relative select-none">
+                        <!-- Top status bars -->
+                        <div class="flex justify-between items-center text-[10px] text-slate-400 pb-4">
+                            <span>12:45 <i class="fa-solid fa-location-arrow text-[8px]"></i></span>
+                            <div class="flex items-center space-x-1.5">
+                                <i class="fa-solid fa-chart-bar"></i>
+                                <i class="fa-solid fa-wifi"></i>
+                                <i class="fa-solid fa-battery-three-quarters"></i>
+                            </div>
+                        </div>
+
+                        <!-- App Branding -->
+                        <div class="flex flex-col items-center space-y-1.5 pt-4 text-center">
+                            <div class="bg-teal-500 text-slate-900 p-2.5 rounded-2xl shadow-lg shadow-teal-500/10 mb-1 flex items-center justify-center">
+                                <i class="fa-solid fa-building-user text-2xl"></i>
+                            </div>
+                            <h4 class="font-bold text-sm tracking-wide text-white">${escapeHtml(companyName)}</h4>
+                            <p class="text-[10px] text-teal-400 tracking-wider uppercase font-semibold">Employee Portal Sec</p>
+                        </div>
+
+                        <!-- Employee Info card -->
+                        <div class="bg-slate-800/60 border border-slate-700/60 px-4 py-3 rounded-2xl mt-4 flex items-center space-x-3">
+                            <div class="h-9 w-9 rounded-full bg-teal-500/15 text-teal-300 font-bold flex items-center justify-center text-sm border border-teal-500/20">
+                                ${emp.name.split(' ').map(n=>n[0]).join('')}
+                            </div>
+                            <div class="flex-grow">
+                                <h5 class="text-[11px] font-bold text-white">${escapeHtml(emp.name)}</h5>
+                                <p class="text-[9px] text-slate-400 truncate">${escapeHtml(emp.designation || 'Staff')}</p>
+                            </div>
+                        </div>
+
+                        <!-- PIN Dot indicators -->
+                        <div class="flex flex-col items-center justify-center space-y-2 my-auto pt-2">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Enter Security PIN</span>
+                            <div class="flex space-x-3.5">
+                                ${indicators}
+                            </div>
+                        </div>
+
+                        <!-- Custom Embedded Numeric Keypad -->
+                        <div class="grid grid-cols-3 gap-y-2.5 gap-x-4 max-w-[240px] mx-auto pb-4">
+                            ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => `
+                                <button onclick="pressSimKey('${num}')" class="h-11 w-11 rounded-full bg-slate-800/80 active:bg-teal-600 text-white font-bold text-sm border border-slate-750 transition flex items-center justify-center active:scale-95">
+                                    ${num}
+                                </button>
+                            `).join('')}
+                            <button onclick="pressSimKey('clear')" class="h-11 w-11 rounded-full bg-slate-800/40 text-slate-400 active:text-white font-semibold text-[10px] flex items-center justify-center">
+                                CLEAR
+                            </button>
+                            <button onclick="pressSimKey('0')" class="h-11 w-11 rounded-full bg-slate-800/80 active:bg-teal-600 text-white font-bold text-sm border border-slate-750 flex items-center justify-center active:scale-95">
+                                0
+                            </button>
+                            <button onclick="simulateAutoLogin()" class="h-11 w-11 rounded-full bg-teal-950/40 border border-teal-550/20 text-teal-400 active:bg-teal-600 active:text-slate-900 text-[10px] font-bold flex items-center justify-center tracking-normal leading-tight">
+                                AUTO PIN
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // IF LOGGED IN
+            let activeScreenContents = '';
+
+            if (simState.currentTab === 'home') {
+                // HOME DASHBOARD TAB
+                let punchBtnHtml = '';
+                if (simState.isCheckingIn) {
+                    punchBtnHtml = `
+                        <div class="relative w-36 h-36 rounded-full border-4 border-slate-800 flex flex-col items-center justify-center bg-slate-900 shadow-xl overflow-hidden text-center p-3 animate-pulse">
+                            <!-- Scanning line -->
+                            <div class="absolute inset-x-0 h-0.5 bg-green-500 shadow-md shadow-green-500/50 animate-bounce top-10"></div>
+                            
+                            <!-- Webcam emoji face mock -->
+                            <div class="text-3xl filter saturate-150 mb-1">🤳</div>
+                            <span class="text-[9px] font-semibold text-green-400 uppercase tracking-widest leading-tight">Scanning Biometrics...</span>
+                            <span class="text-[8px] text-slate-500 mt-1">Selfie Lock Verification</span>
+                        </div>
+                    `;
+                } else if (simState.punchedIn) {
+                    punchBtnHtml = `
+                        <button onclick="triggerSimCheckIn()" class="w-36 h-36 rounded-full border-4 border-rose-500/30 flex flex-col items-center justify-center bg-rose-50 hover:bg-rose-100 text-rose-700 shadow-lg shadow-rose-500/10 transition active:scale-95 text-center p-4">
+                            <i class="fa-solid fa-fingerprint text-3xl animate-pulse text-rose-500 mb-1.5"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">TAP REGISTER</span>
+                            <span class="text-[9px] font-extrabold text-rose-600 mt-1">CHECK OUT</span>
+                        </button>
+                    `;
+                } else {
+                    punchBtnHtml = `
+                        <button onclick="triggerSimCheckIn()" class="w-36 h-36 rounded-full border-4 border-teal-500/30 flex flex-col items-center justify-center bg-teal-50 hover:bg-teal-100 text-teal-700 shadow-xl shadow-teal-500/10 transition active:scale-95 text-center p-4">
+                            <i class="fa-solid fa-fingerprint text-3xl text-teal-600 mb-1.5"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">TAP REGISTER</span>
+                            <span class="text-[9px] font-extrabold text-teal-600 mt-1">CHECK IN</span>
+                        </button>
+                    `;
+                }
+
+                // Calculate earnings rate
+                const dailyWage = emp.salary_per_day || 1200;
+                const hoursWage = (dailyWage / 8).toFixed(2);
+
+                activeScreenContents = `
+                    <div class="space-y-4 pt-1">
+                        <!-- Hello card -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-[9px] text-slate-400 uppercase font-bold">Workspace App active</span>
+                                <h4 class="font-bold text-sm text-slate-900">Namaste, ${escapeHtml(emp.name.split(' ')[0])}!</h4>
+                            </div>
+                            <span class="text-[9px] font-semibold bg-blue-50 border border-blue-200 text-blue-700 px-1.5 py-0.5 rounded-lg flex items-center">
+                                <span class="h-1.5 w-1.5 bg-blue-500 rounded-full mr-1"></span> Wi-Fi GPS OK
+                            </span>
+                        </div>
+
+                        <!-- Big Circular Punch -->
+                        <div class="flex justify-center items-center py-2 relative">
+                            ${punchBtnHtml}
+                        </div>
+
+                        <!-- Punch Status Display -->
+                        <div class="bg-slate-900 text-white rounded-2xl p-3 shadow-md space-y-2">
+                            <div class="flex justify-between items-center text-[10px] border-b border-slate-800 pb-1.5">
+                                <span class="text-slate-400 font-medium">Session Status</span>
+                                <span class="font-semibold uppercase ${simState.punchedIn ? 'text-green-400' : 'text-amber-400'}">
+                                    ${simState.punchedIn ? 'Shift Active' : 'Off-Duty'}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-center pt-0.5">
+                                <div>
+                                    <span class="text-[9px] text-slate-400 block">Logged In At</span>
+                                    <span class="text-[11px] font-bold text-slate-200">${simState.punchedIn ? simState.punchInTime : '-- : --'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] text-slate-400 block">Accrued Wage</span>
+                                    <span class="text-[11px] font-extrabold text-teal-300">${simState.punchedIn ? '₹' + hoursWage : '₹0.00'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rules Overview list inside widget -->
+                        <div class="bg-white rounded-2xl border border-slate-200 p-3 space-y-2">
+                            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wide block">Current Shift Rules</span>
+                            <div class="flex justify-between text-[11px] border-b border-slate-50 pb-1">
+                                <span class="text-slate-500"><i class="fa-regular fa-clock text-slate-400 mr-1"></i> Shift Timing:</span>
+                                <span class="font-bold text-slate-800">${escapeHtml(shiftStart)} - ${escapeHtml(shiftEnd)}</span>
+                            </div>
+                            <div class="flex justify-between text-[11px]">
+                                <span class="text-slate-500"><i class="fa-solid fa-coins text-slate-400 mr-1"></i> Overtime Modifier:</span>
+                                <span class="font-bold text-slate-800">${appState.company_settings ? appState.company_settings.overtime_multiplier : '1.5'}x Rate</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            } else if (simState.currentTab === 'logs') {
+                // ATTENDANCE ATTENDANCE HISTORIC LOGS
+                activeScreenContents = `
+                    <div class="space-y-4 pt-1">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <h4 class="font-bold text-slate-900 text-sm">Attendance Logs</h4>
+                            <span class="text-[9px] text-slate-400">Past Months Activity</span>
+                        </div>
+
+                        <div class="bg-white rounded-2xl border border-slate-200 p-3 space-y-2">
+                            <div class="flex justify-between items-center text-[10px] border-b border-slate-100 pb-1">
+                                <span class="font-semibold text-slate-400 uppercase">Wage Parameters</span>
+                                <span class="bg-teal-50 text-teal-800 font-bold px-1 py-0.5 rounded">Calculated Rate</span>
+                            </div>
+                            <p class="text-[11px] text-slate-600 leading-relaxed">Your gross monthly earnings are computed directly on registered logins. Daily base is <strong class="text-slate-800">₹${(emp.salary_per_day || 1200).toLocaleString('en-IN')}</strong>.</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase block tracking-wider">Simulated Log Register</span>
+                            <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                                <div class="bg-white border border-slate-200 rounded-xl p-2 flex justify-between items-center">
+                                    <div>
+                                        <h5 class="text-[10px] font-bold text-slate-800">Today, June 10, 2026</h5>
+                                        <span class="text-[9px] text-slate-400">${simState.punchedIn ? `Shift Started: ${simState.punchInTime}` : 'Offline-No punch-in'}</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold ${simState.punchedIn ? 'text-green-600 bg-green-50' : 'text-slate-400 bg-slate-50'} px-2 py-0.5 rounded-lg">
+                                        ${simState.punchedIn ? 'Active' : 'Closed'}
+                                    </span>
+                                </div>
+                                <div class="bg-white border border-slate-200 rounded-xl p-2 flex justify-between items-center opacity-85">
+                                    <div>
+                                        <h5 class="text-[10px] font-bold text-slate-800">June 9, 2026</h5>
+                                        <span class="text-[9px] text-slate-400">Shifts: 09:02 AM - 06:12 PM</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-lg">Approved</span>
+                                </div>
+                                <div class="bg-white border border-slate-200 rounded-xl p-2 flex justify-between items-center opacity-85">
+                                    <div>
+                                        <h5 class="text-[10px] font-bold text-slate-800">June 8, 2026</h5>
+                                        <span class="text-[9px] text-slate-400">Shifts: 08:55 AM - 06:05 PM</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-lg">Approved</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            } else if (simState.currentTab === 'announcements') {
+                // NEWS ANNOUNCEMENTS FEED
+                const anns = appState.announcements || [];
+                let annsHtml = '';
+
+                if (anns.length === 0) {
+                    annsHtml = `
+                        <div class="py-12 text-center text-slate-400 space-y-2 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                            <i class="fa-regular fa-bell-slash text-2xl"></i>
+                            <p class="text-[11px]">No active bulletins broadcasted.</p>
+                        </div>
+                    `;
+                } else {
+                    annsHtml = anns.map(ann => {
+                        const isHigh = String(ann.priority).toLowerCase() === 'high';
+                        return `
+                            <div class="bg-white border-l-4 ${isHigh ? 'border-red-500' : 'border-teal-500'} border border-slate-200 rounded-xl p-3 space-y-1.5 shadow-sm">
+                                <div class="flex justify-between items-start">
+                                    <span class="text-[9px] font-bold uppercase tracking-wider ${isHigh ? 'text-red-600 bg-red-50 px-1 py-0.5 rounded' : 'text-teal-600 bg-teal-50 px-1 py-0.5 rounded'}">
+                                        ${escapeHtml(ann.category || 'INFO')}
+                                    </span>
+                                    <span class="text-[8px] text-slate-400">${escapeHtml(ann.date || '2026-06-10')}</span>
+                                </div>
+                                <h5 class="font-bold text-slate-900 text-[11px] leading-tight">${escapeHtml(ann.title)}</h5>
+                                <p class="text-[10px] text-slate-600 leading-normal">${escapeHtml(ann.content)}</p>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                activeScreenContents = `
+                    <div class="space-y-4 pt-1">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <h4 class="font-bold text-slate-900 text-sm">Announcements Feed</h4>
+                            <span class="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold">${anns.length} Alert${anns.length === 1 ? '' : 's'}</span>
+                        </div>
+
+                        <p class="text-[10px] text-slate-500">Official directives and holiday alerts issued live by the Corporate HR Desk.</p>
+
+                        <div class="space-y-3 max-h-56 overflow-y-auto pr-1">
+                            ${annsHtml}
+                        </div>
+                    </div>
+                `;
+
+            } else if (simState.currentTab === 'leave') {
+                // APPLY LEAVE TAB
+                let leaveRows = simState.leavesList.map(l => `
+                    <div class="bg-white border border-slate-150 p-2 rounded-lg flex justify-between items-center text-[10px]">
+                        <div>
+                            <span class="font-bold text-slate-800">${escapeHtml(l.type)} Leave</span>
+                            <p class="text-[8px] text-slate-400 mt-0.5">${escapeHtml(l.start)} to ${escapeHtml(l.end)}</p>
+                        </div>
+                        <span class="px-1.5 py-0.5 rounded-full text-[8px] font-bold 
+                            ${l.status === 'Approved' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}">
+                            ${escapeHtml(l.status)}
+                        </span>
+                    </div>
+                `).join('');
+
+                activeScreenContents = `
+                    <div class="space-y-4 pt-1">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <h4 class="font-bold text-slate-900 text-sm">Leave Applications</h4>
+                            <span class="text-[9px] text-slate-400">HR Forms</span>
+                        </div>
+
+                        <div id="simLeaveFormBlock" class="bg-white rounded-2xl border border-slate-200 p-3 space-y-3 shadow-sm">
+                            <h5 class="font-bold text-slate-850 text-[10px] uppercase tracking-wider">File Leave Request</h5>
+                            <form onsubmit="dispatchSimLeave(event)" class="space-y-2.5 text-[10px]">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-slate-500 mb-0.5">Start Date</label>
+                                        <input id="simLeaveStart" type="date" value="2026-06-15" class="w-full border border-slate-200 rounded p-1 text-[10px]">
+                                    </div>
+                                    <div>
+                                        <label class="block text-slate-500 mb-0.5">End Date</label>
+                                        <input id="simLeaveEnd" type="date" value="2026-06-16" class="w-full border border-slate-200 rounded p-1 text-[10px]">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-slate-500 mb-0.5">Leave Type</label>
+                                        <select id="simLeaveType" class="w-full border border-slate-200 rounded p-1 text-[10px] bg-white">
+                                            <option value="Annual">Annual Leave</option>
+                                            <option value="Medical">Medical / Sick</option>
+                                            <option value="Casual">Casual Leave</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-slate-500 mb-0.5">HR Reason</label>
+                                        <input id="simLeaveReason" type="text" placeholder="Personal reasons/sick checkup" class="w-full border border-slate-200 rounded p-1 text-[10px]">
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 rounded transition">
+                                    Submit Form Request
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Past Leave Status</span>
+                            <div class="space-y-1 max-h-24 overflow-y-auto">
+                                ${leaveRows}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            screen.innerHTML = `
+                <!-- Main Screen Container (Logged In) -->
+                <div class="h-full flex flex-col bg-slate-50 text-slate-800 select-none pb-12 relative">
+                    <!-- Status Bar header -->
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 bg-white border-b border-slate-100 px-4 py-2">
+                        <span class="font-bold">12:45 <i class="fa-solid fa-bell text-[8px] ml-1"></i></span>
+                        <div class="flex items-center space-x-1.5 text-slate-600">
+                            <i class="fa-solid fa-rss text-teal-600 animate-pulse text-[8px]"></i>
+                            <span>LTE</span>
+                            <i class="fa-solid fa-wifi"></i>
+                            <i class="fa-solid fa-battery-full text-green-500"></i>
+                        </div>
+                    </div>
+
+                    <!-- App Title Banner -->
+                    <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-teal-500/10">
+                        <div class="flex items-center space-x-2">
+                            <div class="bg-teal-500 text-slate-900 p-1.5 rounded-lg text-xs flex items-center justify-center">
+                                <i class="fa-solid fa-building-user"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-[11px] font-extrabold tracking-tight">${escapeHtml(companyName)}</h1>
+                                <p class="text-[8px] text-teal-400">Personal Employee Workspace</p>
+                            </div>
+                        </div>
+                        <button onclick="simState.isLogged=false; updateSimUi()" class="text-slate-400 hover:text-red-400 transition" title="Log Out">
+                            <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Inner Scrollable Pane Content -->
+                    <div class="flex-grow overflow-y-auto px-4 py-3 bg-slate-50">
+                        ${activeScreenContents}
+                    </div>
+
+                    <!-- Bottom Nav Panel -->
+                    <div class="absolute bottom-0 inset-x-0 h-12 bg-white border-t border-slate-200/80 flex justify-around items-center z-20">
+                        <button onclick="switchSimTab('home')" class="flex flex-col items-center justify-center flex-1 py-1 transition ${simState.currentTab === 'home' ? 'text-teal-600' : 'text-slate-400 hover:text-slate-600'}">
+                            <i class="fa-solid fa-house text-sm"></i>
+                            <span class="text-[8px] font-bold mt-0.5">Punch-In</span>
+                        </button>
+                        <button onclick="switchSimTab('logs')" class="flex flex-col items-center justify-center flex-1 py-1 transition ${simState.currentTab === 'logs' ? 'text-teal-600' : 'text-slate-400 hover:text-slate-600'}">
+                            <i class="fa-solid fa-calendar-days text-sm"></i>
+                            <span class="text-[8px] font-bold mt-0.5">Logs</span>
+                        </button>
+                        <button onclick="switchSimTab('announcements')" class="flex flex-col items-center justify-center flex-1 py-1 transition relative ${simState.currentTab === 'announcements' ? 'text-teal-600' : 'text-slate-400 hover:text-slate-600'}">
+                            <i class="fa-solid fa-bullhorn text-sm"></i>
+                            <span class="text-[8px] font-bold mt-0.5">Feed</span>
+                            <span class="absolute top-1 right-5 w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                        </button>
+                        <button onclick="switchSimTab('leave')" class="flex flex-col items-center justify-center flex-1 py-1 transition ${simState.currentTab === 'leave' ? 'text-teal-600' : 'text-slate-400 hover:text-slate-600'}">
+                            <i class="fa-solid fa-receipt text-sm"></i>
+                            <span class="text-[8px] font-bold mt-0.5">Leaves</span>
+                        </button>
+                    </div>
+                </div>
+            `;
         }
     </script>
 </body>
