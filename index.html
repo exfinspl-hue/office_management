@@ -141,10 +141,14 @@
                         <h2 class="text-2xl font-bold header-font text-slate-900">Dynamic Control Setup</h2>
                         <p class="text-sm text-slate-500">Provide your GitHub credentials below. This allows your custom web portal to instantly sync database edits directly to the employees' native APK apps worldwide!</p>
                     </div>
-                    <div class="flex space-x-2">
+                    <div class="flex flex-wrap gap-2">
                         <button onclick="loadFromGitHub()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center space-x-2 shadow-sm shadow-teal-600/10">
                             <i id="btnLoadSpinner" class="fa-solid fa-cloud-arrow-down"></i>
                             <span>Fetch Configuration</span>
+                        </button>
+                        <button onclick="pushToGitHub()" class="bg-teal-950 hover:bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
+                            <i class="btnPushSpinner fa-solid fa-cloud-arrow-up"></i>
+                            <span>Push Configuration to GitHub</span>
                         </button>
                     </div>
                 </div>
@@ -633,11 +637,27 @@
             updateSyncBannerStatus(token, repo, branch, path);
         }
 
+        function cleanRepoInput(rawValue) {
+            let val = rawValue.trim();
+            // Match pattern like github.com/owner/repo or https://github.com/owner/repo
+            const match = val.match(/github\.com\/([^\/]+)\/([^\s\#\?\/]+)/i);
+            if (match) {
+                val = `${match[1]}/${match[2]}`.replace(/\.git$/, '');
+            }
+            return val;
+        }
+
         function handleConfigInput() {
             const token = document.getElementById('ghTokenInput').value.trim();
-            const repo = document.getElementById('ghRepoInput').value.trim();
+            let repo = document.getElementById('ghRepoInput').value.trim();
             const branch = document.getElementById('ghBranchInput').value.trim();
             const path = document.getElementById('ghPathInput').value.trim();
+
+            const cleanedRepo = cleanRepoInput(repo);
+            if (cleanedRepo !== repo) {
+                repo = cleanedRepo;
+                document.getElementById('ghRepoInput').value = repo;
+            }
 
             localStorage.setItem('op_gh_token', token);
             localStorage.setItem('op_gh_repo', repo);
@@ -657,9 +677,15 @@
 
         function saveSetupInfo() {
             const token = document.getElementById('ghTokenInput').value.trim();
-            const repo = document.getElementById('ghRepoInput').value.trim();
+            let repo = document.getElementById('ghRepoInput').value.trim();
             const branch = document.getElementById('ghBranchInput').value.trim();
             const path = document.getElementById('ghPathInput').value.trim();
+
+            const cleanedRepo = cleanRepoInput(repo);
+            if (cleanedRepo !== repo) {
+                repo = cleanedRepo;
+                document.getElementById('ghRepoInput').value = repo;
+            }
 
             localStorage.setItem('op_gh_token', token);
             localStorage.setItem('op_gh_repo', repo);
@@ -803,8 +829,10 @@
                 return;
             }
 
-            const pushSpinner = document.getElementById('btnPushSpinner');
-            pushSpinner.className = "fa-solid fa-circle-notch fa-spin";
+            const pushSpinners = document.querySelectorAll('#btnPushSpinner, .btnPushSpinner');
+            pushSpinners.forEach(s => {
+                s.className = "btnPushSpinner fa-solid fa-circle-notch fa-spin";
+            });
 
             try {
                 // If sha is unknown, try checking first
@@ -864,7 +892,10 @@
             } catch (e) {
                 showAlert('error', 'Dynamic Serialization Failure', `Failed to construct update payloads: ${e.message}`);
             } finally {
-                pushSpinner.className = "fa-solid fa-cloud-arrow-down";
+                const pushSpinners = document.querySelectorAll('#btnPushSpinner, .btnPushSpinner');
+                pushSpinners.forEach(s => {
+                    s.className = "btnPushSpinner fa-solid fa-cloud-arrow-up";
+                });
             }
         }
 
