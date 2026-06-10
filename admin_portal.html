@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfficePro - Remote Admin Control Center</title>
+    <!-- Tailwind CSS for modern responsive visual grids -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for precise, colorful indicators and symbols -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Space Grotesk and Inter for elegant web typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navyPrimary: '#1E293B',
+                        navySecondary: '#0F172A',
+                        tealAccent: '#0D9488',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+        }
+        .header-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Desktop & Tablet Sidebar Layout Container -->
+    <div class="flex flex-col md:flex-row min-h-screen">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 bg-slate-900 text-slate-100 flex-shrink-0 flex flex-col border-r border-slate-800">
+            <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-teal-500 text-slate-900 p-2 rounded-lg font-bold">
+                        <i class="fa-solid fa-building-user text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-display font-bold text-lg tracking-tight">OfficePro</h1>
+                        <span class="text-xs text-teal-400 font-medium">Remote Cloud Sync</span>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobileMenuBtn" class="p-2 text-slate-400 hover:text-white focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <nav id="navMenu" class="hidden md:flex flex-col flex-grow p-4 space-y-1">
+                <a href="#quickstart" onclick="switchSection('quickstart')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl transition duration-150 bg-teal-500/10 text-teal-400 font-medium" id="link-quickstart">
+                    <i class="fa-solid fa-circle-info w-5"></i>
+                    <span>Control Panel Guide</span>
+                </a>
+                <a href="#settings" onclick="switchSection('settings')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl transition duration-150 text-slate-300 hover:bg-slate-800 hover:text-white" id="link-settings">
+                    <i class="fa-solid fa-gears w-5"></i>
+                    <span>Company Rules</span>
+                </a>
+                <a href="#roster" onclick="switchSection('roster')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl transition duration-150 text-slate-300 hover:bg-slate-800 hover:text-white" id="link-roster">
+                    <i class="fa-solid fa-id-card-clip w-5"></i>
+                    <span>Employee Roster</span>
+                </a>
+                <a href="#announcements" onclick="switchSection('announcements')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl transition duration-150 text-slate-300 hover:bg-slate-800 hover:text-white" id="link-announcements">
+                    <i class="fa-regular fa-bell w-5"></i>
+                    <span>Announcements</span>
+                </a>
+                <a href="#payload" onclick="switchSection('payload')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl transition duration-150 text-slate-300 hover:bg-slate-800 hover:text-white" id="link-payload">
+                    <i class="fa-solid fa-code w-5"></i>
+                    <span>Raw JSON Code</span>
+                </a>
+
+                <!-- Connection status widget inside sidebar bottom -->
+                <div class="mt-auto pt-6 border-t border-slate-800/60">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/60">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-slate-400">Sync Pipeline</span>
+                            <span id="connectionBadge" class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-red-400/10 text-red-400">
+                                <span class="h-1.5 w-1.5 rounded-full bg-red-500 mr-1.5"></span>Offline
+                            </span>
+                        </div>
+                        <p id="connectionRepoText" class="text-[11px] text-slate-400 truncate mb-3">No repo configured</p>
+                        <button onclick="switchSection('quickstart')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-2 rounded-lg font-medium transition flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-plug text-[10px]"></i>
+                            <span>Configure Cloud</span>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow flex flex-col p-4 md:p-8 overflow-y-auto max-w-6xl mx-auto w-full">
+            
+            <!-- Global Status Banners -->
+            <div id="statusAlert" class="hidden mb-6 p-4 rounded-xl border flex items-start space-x-3 transition duration-150">
+                <div id="statusIcon" class="flex-shrink-0 mt-0.5 text-lg"></div>
+                <div class="flex-grow">
+                    <h4 id="statusTitle" class="font-semibold text-sm">Action Complete</h4>
+                    <p id="statusMsg" class="text-xs mt-0.5 text-slate-600">Details about output are shown here.</p>
+                </div>
+                <button onclick="closeStatusAlert()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- SECTION 1: QUICKSTART GUIDE / CONNECT GITHUB -->
+            <section id="sec-quickstart" class="space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold header-font text-slate-900">Dynamic Control Setup</h2>
+                        <p class="text-sm text-slate-500">Provide your GitHub credentials below. This allows your custom web portal to instantly sync database edits directly to the employees' native APK apps worldwide!</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="loadFromGitHub()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center space-x-2 shadow-sm shadow-teal-600/10">
+                            <i id="btnLoadSpinner" class="fa-solid fa-cloud-arrow-down"></i>
+                            <span>Fetch Configuration</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Config Box -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:col-span-2 space-y-4">
+                        <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
+                            <i class="fa-brands fa-github text-2xl text-slate-900"></i>
+                            <h3 class="font-display font-bold text-lg text-slate-900">1. GitHub Target Settings</h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Personal Access Token (PAT) <span class="text-red-500">*</span></label>
+                                <input id="ghTokenInput" type="password" placeholder="ghp_xxxxxxxxxxxx" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">GitHub Repository (owner/name) <span class="text-red-500">*</span></label>
+                                <input id="ghRepoInput" type="text" placeholder="username/my-office-repo" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Target Branch</label>
+                                <input id="ghBranchInput" type="text" value="main" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">JSON File Path</label>
+                                <input id="ghPathInput" type="text" value="dynamic_config.json" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                            </div>
+                        </div>
+
+                        <button onclick="saveSetupInfo()" class="bg-slate-950 hover:bg-slate-900 text-white w-full py-2.5 rounded-lg text-sm font-semibold transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Save Cloud Configuration</span>
+                        </button>
+                    </div>
+
+                    <!-- App Connection QR/Info -->
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-950 text-white rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden">
+                        <div class="absolute -right-10 -bottom-10 opacity-5 text-9xl">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                        <div class="space-y-3 z-10">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-400/20 text-teal-300">
+                                OTA Framework
+                            </span>
+                            <h3 class="font-display font-medium text-lg leading-tight">Dynamic APK Sync Active!</h3>
+                            <p class="text-xs text-slate-400">Your custom APK reads content dynamically over raw JSON streams. Any save you push here updates all apps instantly.</p>
+                        </div>
+                        <div class="pt-6 border-t border-slate-800/80 mt-6 md:mt-0 z-10">
+                            <span class="text-[10px] block font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Direct Raw URL for Sync:</span>
+                            <div class="bg-slate-900/80 border border-slate-800/80 rounded-lg p-2 flex items-center justify-between">
+                                <span id="syncRawUrlText" class="text-[11px] text-teal-300 truncate mr-2 select-all">https://raw.githubusercontent.com/...</span>
+                                <button onclick="copyRawUrl()" class="text-slate-400 hover:text-white transition p-1">
+                                    <i class="fa-solid fa-copy text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tutorial Steps -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                    <h3 class="font-display font-bold text-lg text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-graduation-cap text-teal-500"></i>
+                        <span>How does this dynamic setup update my employees' APKs?</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-slate-600">
+                        <div class="space-y-2 border-l-2 border-teal-500/20 pl-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-teal-100 text-teal-800 h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs">1</span>
+                                <h4 class="font-semibold text-slate-800">You Edit Settings</h4>
+                            </div>
+                            <p class="text-xs">Use the tabs on the left to add employees, edit working schedules, holidays lists, or corporate news notifications.</p>
+                        </div>
+                        <div class="space-y-2 border-l-2 border-teal-500/20 pl-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-teal-100 text-teal-800 h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs">2</span>
+                                <h4 class="font-semibold text-slate-800">Save to GitHub</h4>
+                            </div>
+                            <p class="text-xs">When you click "Push to GitHub", this Web Portal uploads the database to your repository dynamically via secure API.</p>
+                        </div>
+                        <div class="space-y-2 border-l-2 border-teal-500/20 pl-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-teal-100 text-teal-800 h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs">3</span>
+                                <h4 class="font-semibold text-slate-800">Apps Auto-Sync</h4>
+                            </div>
+                            <p class="text-xs">Employees' Android APKs fetch this file background-wise, updating schedules and rosters in real time with zero reinstalls.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: COMPANY SETTINGS SECTION -->
+            <section id="sec-settings" class="hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold header-font text-slate-900">Company Schedule & Profile Rules</h2>
+                        <p class="text-sm text-slate-500">Configure default shift limits, overtime rates, and scheduled holiday lists across the entire enterprise.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Company / Organization Name</label>
+                        <input id="setCompanyName" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Working Days Per Week</label>
+                        <select id="setWorkingDays" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                            <option value="5">5 Days (Mon - Fri)</option>
+                            <option value="6">6 Days (Mon - Sat)</option>
+                            <option value="7">7 Days (Full Week)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Standard Shift Starts (24hr)</label>
+                        <input id="setShiftStart" type="time" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Standard Shift Ends (24hr)</label>
+                        <input id="setShiftEnd" type="time" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Overtime Wage Multiplier</label>
+                        <input id="setOvertime" type="number" step="0.05" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">System Operational Holidays (Comma Separated Dates YYYY-MM-DD)</label>
+                        <textarea id="setHolidays" rows="2" placeholder="2026-01-01,2026-12-25" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm font-mono"></textarea>
+                    </div>
+
+                    <div class="md:col-span-2 pt-4 border-t border-slate-100 flex justify-end">
+                        <button onclick="commitCompanySettings()" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center space-x-2">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Commit Profile settings</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: EMPLOYEE ROSTER SECTION -->
+            <section id="sec-roster" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold header-font text-slate-900">Enterprise Registry Roster</h2>
+                        <p class="text-sm text-slate-500">Edit, register, or delete personnel lists in the database. Saved profiles can log in natively to the workspace app panel.</p>
+                    </div>
+                    <button onclick="openEmployeeModal()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center space-x-2">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Register Employee</span>
+                    </button>
+                </div>
+
+                <!-- Interactive Filters -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="relative flex-grow max-w-md">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+                        <input id="rosterSearch" type="text" oninput="renderRosterList()" placeholder="Filter employees by name, designation, department..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div class="flex space-x-2">
+                        <select id="filterDept" onchange="renderRosterList()" class="px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm text-slate-600 bg-white">
+                            <option value="ALL">All Departments</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Human Resources">Human Resources</option>
+                            <option value="Operations">Operations</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Sales & Marketing">Sales & Marketing</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Roster Table Display Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-100 text-slate-600 text-xs font-semibold uppercase tracking-wider">
+                                    <th class="px-6 py-4">ID</th>
+                                    <th class="px-6 py-4">Name & Access Email</th>
+                                    <th class="px-6 py-4">Category & Role</th>
+                                    <th class="px-6 py-4">Salary Scale</th>
+                                    <th class="px-6 py-4">Verification PIN</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rosterTableBody" class="divide-y divide-slate-100 text-sm text-slate-700">
+                                <tr>
+                                    <td colspan="7" class="px-6 py-8 text-center text-slate-400">
+                                        <i class="fa-solid fa-circle-notch fa-spin text-2xl text-teal-500 mb-2"></i>
+                                        <p class="text-xs">Connecting to configuration state...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: ANNOUNCEMENTS SECTION -->
+            <section id="sec-announcements" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold header-font text-slate-900">Broadcast Bulletins & News</h2>
+                        <p class="text-sm text-slate-500">Edit general announcement bulletins displayed directly on the app's terminal home interface.</p>
+                    </div>
+                    <button onclick="openAnnModal()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center space-x-2">
+                        <i class="fa-solid fa-bullhorn"></i>
+                        <span>New Announcement</span>
+                    </button>
+                </div>
+
+                <!-- Grid List of Announcements -->
+                <div id="announcementGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="col-span-1 md:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center text-slate-400">
+                        <p>No active announcements to display.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: PAYLOAD PREVIEW -->
+            <section id="sec-payload" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold header-font text-slate-900">Active Dynamic Config Content JSON</h2>
+                        <p class="text-sm text-slate-500">Preview exact JSON object structure before syncing to GitHub or manually copying payload data.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500">Payload code view</span>
+                        <div class="flex space-x-2">
+                            <button onclick="copyGeneratedJSON()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Copy JSON</span>
+                            </button>
+                            <button onclick="pushToGitHub()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5 shadow-sm shadow-teal-600/10">
+                                <i id="btnPushSpinner" class="fa-solid fa-cloud-arrow-up"></i>
+                                <span>Push to GitHub Now</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-slate-100">
+                        <pre id="jsonPreviewBox" class="text-xs font-mono overflow-x-auto whitespace-pre-wrap max-h-96">{
+  /* Configuration not loaded yet */
+}</pre>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- EMPLOYEE STORAGE FORM MODAL -->
+    <div id="employeeModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+                <h3 id="modalEmployeeTitle" class="font-display font-bold text-lg">Register Enterprise Personnel</h3>
+                <button onclick="closeEmployeeModal()" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-4 flex-grow text-sm">
+                <input id="modalEmpIndex" type="hidden" value="-1">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Employee ID (Optional/Numeric)</label>
+                        <input id="modalEmpId" type="number" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Full Legal Name <span class="text-red-500">*</span></label>
+                        <input id="modalEmpName" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Designation Role <span class="text-red-500">*</span></label>
+                        <input id="modalEmpDesignation" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Department</label>
+                        <select id="modalEmpDept" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                            <option value="Engineering">Engineering</option>
+                            <option value="Human Resources">Human Resources</option>
+                            <option value="Operations">Operations</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Sales & Marketing">Sales & Marketing</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Email ID</label>
+                        <input id="modalEmpEmail" type="email" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Phone Number</label>
+                        <input id="modalEmpPhone" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Salary Base Per Day</label>
+                        <input id="modalEmpSalary" type="number" value="1000" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Join Date</label>
+                        <input id="modalEmpJoinDate" type="date" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">System Login Password PIN <span class="text-red-500">*</span></label>
+                        <input id="modalEmpPassword" type="text" placeholder="1234" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Employability Status</label>
+                        <select id="modalEmpActive" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                            <option value="true">Active Personnel</option>
+                            <option value="false">Inactive / Resigned</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end space-x-2">
+                <button onclick="closeEmployeeModal()" class="px-4 py-2 text-sm bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg font-semibold transition">Cancel</button>
+                <button onclick="saveEmployeeData()" class="px-4 py-2 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-semibold transition">Save Roster</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANNOUNCEMENT FORM MODAL -->
+    <div id="annModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden flex flex-col">
+            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+                <h3 id="modalAnnTitle" class="font-display font-bold text-lg">Broadcast Dynamic Bulletin</h3>
+                <button onclick="closeAnnModal()" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4 text-sm">
+                <input id="modalAnnIndex" type="hidden" value="-1">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Bulletin Title <span class="text-red-500">*</span></label>
+                    <input id="modalAnnHeader" type="text" placeholder="e.g. 🎉 Company Office Holiday" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Broadcast Details Message <span class="text-red-500">*</span></label>
+                    <textarea id="modalAnnContent" rows="4" placeholder="Brief announcement layout instructions..." class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Category Code</label>
+                        <select id="modalAnnCat" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                            <option value="General">General News</option>
+                            <option value="Alert">Alert Warnings</option>
+                            <option value="Holiday">Holidays List</option>
+                            <option value="Event">Corporate Events</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Priority Badge</label>
+                        <select id="modalAnnPriority" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                            <option value="Normal">Normal Priority</option>
+                            <option value="High">High Urgency</option>
+                            <option value="Low">Low Priority</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end space-x-2">
+                <button onclick="closeAnnModal()" class="px-4 py-2 text-sm bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg font-semibold transition">Cancel</button>
+                <button onclick="saveAnnData()" class="px-4 py-2 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-semibold transition">Publish Bulletin</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MASTER CORE SCRIPT -->
+    <script>
+        // Default Template state variables
+        let appState = {
+            company_settings: {
+                company_name: "OfficePro Enterprise",
+                working_hours_start: "09:00",
+                working_hours_end: "18:00",
+                working_days_per_week: 5,
+                overtime_multiplier: 1.5,
+                holidays_list: "2026-01-01,2026-05-01,2026-08-15,2026-12-25"
+            },
+            remote_employees: [
+                {
+                    id: 1,
+                    name: "Sarah Jenkins",
+                    designation: "Staff UI/UX Designer",
+                    department: "Engineering",
+                    email: "sarah.j@officepro.com",
+                    phone: "+91 98765 43210",
+                    salary_per_day: 1800.0,
+                    join_date: "2026-02-15",
+                    is_active: true,
+                    password: "9081"
+                },
+                {
+                    id: 2,
+                    name: "Arjun Malhotra",
+                    designation: "Lead Backend Developer",
+                    department: "Engineering",
+                    email: "arjun.m@officepro.com",
+                    phone: "+91 87654 32109",
+                    salary_per_day: 2200.0,
+                    join_date: "2026-01-10",
+                    is_active: true,
+                    password: "5544"
+                }
+            ],
+            announcements: [
+                {
+                    id: 101,
+                    title: "🎉 Anniversary Dinner Tonight",
+                    content: "To celebrate our annual success, join us for a company-sponsored dinner at Marriott Grand Ballroom starting at 7:00 PM.",
+                    date: "2026-06-10",
+                    category: "Event",
+                    priority: "High"
+                }
+            ]
+        };
+
+        // File SHA if loaded from GitHub
+        let currentFileSha = null;
+
+        // Window load triggers initial UI elements
+        window.addEventListener('DOMContentLoaded', () => {
+            // Load setup metadata from LocalStorage
+            loadSetupFromCache();
+            updateUIsFromState();
+
+            // Mobile menu toggling logic
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const navMenu = document.getElementById('navMenu');
+            if (mobileMenuBtn && navMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navMenu.classList.toggle('hidden');
+                });
+            }
+        });
+
+        // Toggle visual active segments
+        function switchSection(sectionId) {
+            document.querySelectorAll('main > section').forEach(sec => {
+                sec.classList.add('hidden');
+            });
+            document.getElementById('sec-' + sectionId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-teal-500/10', 'text-teal-400', 'font-medium');
+                link.classList.add('text-slate-300', 'hover:bg-slate-800', 'hover:text-white');
+            });
+            const activeLink = document.getElementById('link-' + sectionId);
+            activeLink.classList.remove('text-slate-300', 'hover:bg-slate-800', 'hover:text-white');
+            activeLink.classList.add('bg-teal-500/10', 'text-teal-400', 'font-medium');
+
+            // Set current preview
+            if (sectionId === 'payload') {
+                updateJsonPreview();
+            }
+
+            // Close mobile menu
+            document.getElementById('navMenu').classList.add('hidden', 'md:flex');
+        }
+
+        // Cache configuration handling
+        function loadSetupFromCache() {
+            const token = localStorage.getItem('op_gh_token') || '';
+            const repo = localStorage.getItem('op_gh_repo') || '';
+            const branch = localStorage.getItem('op_gh_branch') || 'main';
+            const path = localStorage.getItem('op_gh_path') || 'dynamic_config.json';
+
+            document.getElementById('ghTokenInput').value = token;
+            document.getElementById('ghRepoInput').value = repo;
+            document.getElementById('ghBranchInput').value = branch;
+            document.getElementById('ghPathInput').value = path;
+
+            updateSyncBannerStatus(token, repo, branch, path);
+        }
+
+        function saveSetupInfo() {
+            const token = document.getElementById('ghTokenInput').value.trim();
+            const repo = document.getElementById('ghRepoInput').value.trim();
+            const branch = document.getElementById('ghBranchInput').value.trim();
+            const path = document.getElementById('ghPathInput').value.trim();
+
+            localStorage.setItem('op_gh_token', token);
+            localStorage.setItem('op_gh_repo', repo);
+            localStorage.setItem('op_gh_branch', branch);
+            localStorage.setItem('op_gh_path', path);
+
+            updateSyncBannerStatus(token, repo, branch, path);
+            showAlert('success', 'Credentials Saved Offline', 'Connection credentials are saved securely in your web browser environment.');
+        }
+
+        function updateSyncBannerStatus(token, repo, branch, path) {
+            const statusBadge = document.getElementById('connectionBadge');
+            const repoText = document.getElementById('connectionRepoText');
+            const syncRawText = document.getElementById('syncRawUrlText');
+
+            if (token && repo) {
+                statusBadge.className = "inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-400/10 text-emerald-400";
+                statusBadge.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5"></span>Ready';
+                repoText.textContent = repo;
+                syncRawText.textContent = `https://raw.githubusercontent.com/${repo}/${branch}/${path}`;
+            } else {
+                statusBadge.className = "inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-rose-400/10 text-rose-400";
+                statusBadge.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-rose-500 mr-1.5"></span>Offline';
+                repoText.textContent = 'No repository initialized';
+                syncRawText.textContent = 'https://raw.githubusercontent.com/...';
+            }
+        }
+
+        function copyRawUrl() {
+            const text = document.getElementById('syncRawUrlText').textContent;
+            if (text.startsWith('https://raw')) {
+                navigator.clipboard.writeText(text);
+                showAlert('success', 'URL Copied', 'Paste this RAW address into other workspace platforms to trigger OTA databases.');
+            }
+        }
+
+        // Global Alerts
+        function showAlert(type, title, text) {
+            const alertBox = document.getElementById('statusAlert');
+            const iconBox = document.getElementById('statusIcon');
+            const titleBox = document.getElementById('statusTitle');
+            const msgBox = document.getElementById('statusMsg');
+
+            alertBox.className = "mb-6 p-4 rounded-xl border flex items-start space-x-3 transition duration-150";
+            
+            if (type === 'success') {
+                alertBox.classList.add('bg-emerald-50', 'border-emerald-100', 'text-emerald-800');
+                iconBox.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i>';
+            } else if (type === 'error') {
+                alertBox.classList.add('bg-rose-50', 'border-rose-100', 'text-rose-800');
+                iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-rose-600"></i>';
+            } else {
+                alertBox.classList.add('bg-blue-50', 'border-blue-100', 'text-blue-800');
+                iconBox.innerHTML = '<i class="fa-solid fa-circle-info text-blue-600"></i>';
+            }
+
+            titleBox.textContent = title;
+            msgBox.textContent = text;
+            alertBox.classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeStatusAlert() {
+            document.getElementById('statusAlert').classList.add('hidden');
+        }
+
+        // --- GITHUB INTEGRATION CALLS (FETCH & PUSH) ---
+        async function loadFromGitHub() {
+            const token = document.getElementById('ghTokenInput').value.trim();
+            const repo = document.getElementById('ghRepoInput').value.trim();
+            const branch = document.getElementById('ghBranchInput').value.trim();
+            const path = document.getElementById('ghPathInput').value.trim();
+
+            if (!token || !repo) {
+                showAlert('error', 'Authentication Error', 'You must supply a GitHub PAT token and Repository owner/pathname to connect.');
+                return;
+            }
+
+            const downloadSpinner = document.getElementById('btnLoadSpinner');
+            downloadSpinner.className = "fa-solid fa-circle-notch fa-spin";
+
+            try {
+                const getUrl = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
+                const response = await fetch(getUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.github+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentFileSha = data.sha;
+                    const decodedText = atob(data.content.replace(/\s/g, ''));
+                    const parsedState = JSON.parse(decodedText);
+                    
+                    appState = parsedState;
+                    updateUIsFromState();
+                    showAlert('success', 'Remote Sync Successful', 'Loaded latest active announcements, user lists, and schedule rosters directly from GitHub!');
+                } else if (response.status === 404) {
+                    showAlert('info', 'File Not Initiated', 'The selected configuration file does not exist on your branch yet. Your current template layout will create a brand new file when you push!');
+                    currentFileSha = null;
+                } else {
+                    const errPayload = await response.json();
+                    showAlert('error', 'Fetch Failed', `GitHub responded with error: ${errPayload.message || 'Error code: ' + response.status}`);
+                }
+            } catch (e) {
+                showAlert('error', 'Network Connection Error', `Unable to resolve GitHub pipelines. Check your network or token string: ${e.message}`);
+            } finally {
+                downloadSpinner.className = "fa-solid fa-cloud-arrow-down";
+            }
+        }
+
+        async function pushToGitHub() {
+            const token = localStorage.getItem('op_gh_token') || '';
+            const repo = localStorage.getItem('op_gh_repo') || '';
+            const branch = localStorage.getItem('op_gh_branch') || 'main';
+            const path = localStorage.getItem('op_gh_path') || 'dynamic_config.json';
+
+            if (!token || !repo) {
+                showAlert('error', 'Authentication Error', 'GitHub connections are not configured. Navigate to "Control Panel Guide" once to set target details.');
+                return;
+            }
+
+            const pushSpinner = document.getElementById('btnPushSpinner');
+            pushSpinner.className = "fa-solid fa-circle-notch fa-spin";
+
+            try {
+                // If sha is unknown, try checking first
+                if (!currentFileSha) {
+                    const getUrl = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
+                    const getRes = await fetch(getUrl, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/vnd.github+json'
+                        }
+                    });
+                    if (getRes.ok) {
+                        const getData = await getRes.json();
+                        currentFileSha = getData.sha;
+                    }
+                }
+
+                // Base64 serialization
+                const payloadStr = JSON.stringify(appState, null, 2);
+                const utf8Bytes = new TextEncoder().encode(payloadStr);
+                
+                // base64 safe convert is robust for accents/unicodes
+                let binaryStr = "";
+                for (let i = 0; i < utf8Bytes.length; i++) {
+                    binaryStr += String.fromCharCode(utf8Bytes[i]);
+                }
+                const base64Payload = btoa(binaryStr);
+
+                const putBody = {
+                    message: "Dynamic config sync from OfficePro Web Portal (OTA Core)",
+                    content: base64Payload,
+                    branch: branch
+                };
+                if (currentFileSha) {
+                    putBody.sha = currentFileSha;
+                }
+
+                const putUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+                const response = await fetch(putUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.github+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(putBody)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentFileSha = data.content.sha;
+                    showAlert('success', 'Enterprise Synchronized Worldwide!', 'Dynamic config and personnel registers are successfully pushed to GitHub raw servers. Employee APKs will instantly update OTA.');
+                } else {
+                    const errPayload = await response.json();
+                    showAlert('error', 'Push Update Failed', `GitHub Update Error: ${errPayload.message || 'Error ' + response.status}`);
+                }
+            } catch (e) {
+                showAlert('error', 'Dynamic Serialization Failure', `Failed to construct update payloads: ${e.message}`);
+            } finally {
+                pushSpinner.className = "fa-solid fa-cloud-arrow-down";
+            }
+        }
+
+        // --- SYNCHRONIZE DATA MODELS TO HTML WRAPPERS ---
+        function updateUIsFromState() {
+            // Apply Company rules
+            if (appState.company_settings) {
+                document.getElementById('setCompanyName').value = appState.company_settings.company_name || '';
+                document.getElementById('setWorkingDays').value = appState.company_settings.working_days_per_week || '5';
+                document.getElementById('setShiftStart').value = appState.company_settings.working_hours_start || '09:00';
+                document.getElementById('setShiftEnd').value = appState.company_settings.working_hours_end || '18:00';
+                document.getElementById('setOvertime').value = appState.company_settings.overtime_multiplier || '1.5';
+                document.getElementById('setHolidays').value = appState.company_settings.holidays_list || '';
+            }
+
+            // Sync Table
+            renderRosterList();
+            renderAnnList();
+            updateJsonPreview();
+        }
+
+        // --- COMPANY SETTINGS ---
+        function commitCompanySettings() {
+            if (!appState.company_settings) appState.company_settings = {};
+
+            appState.company_settings.company_name = document.getElementById('setCompanyName').value.trim();
+            appState.company_settings.working_hours_start = document.getElementById('setShiftStart').value;
+            appState.company_settings.working_hours_end = document.getElementById('setShiftEnd').value;
+            appState.company_settings.working_days_per_week = parseInt(document.getElementById('setWorkingDays').value);
+            appState.company_settings.overtime_multiplier = parseFloat(document.getElementById('setOvertime').value) || 1.5;
+            appState.company_settings.holidays_list = document.getElementById('setHolidays').value.trim();
+
+            showAlert('success', 'Settings Profile Staged', 'Configurations are committed locally! Tap "Raw JSON Code -> Push to GitHub" to broadcast changes across all devices.');
+            updateJsonPreview();
+        }
+
+        // --- EMPLOYEE ROSTER ---
+        function renderRosterList() {
+            const query = document.getElementById('rosterSearch').value.toLowerCase().trim();
+            const filterDept = document.getElementById('filterDept').value;
+            const tableBody = document.getElementById('rosterTableBody');
+
+            // Reset
+            tableBody.innerHTML = '';
+
+            const employees = appState.remote_employees || [];
+            if (employees.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-slate-400">
+                            <i class="fa-solid fa-users-slash text-2xl mb-2"></i>
+                            <p class="text-xs">No employees found in current profile registers.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let renderedCount = 0;
+            employees.forEach((emp, index) => {
+                // Filter matches
+                const matchSearch = !query || 
+                                    (emp.name || '').toLowerCase().includes(query) || 
+                                    (emp.designation || '').toLowerCase().includes(query) || 
+                                    (emp.email || '').toLowerCase().includes(query);
+                
+                const matchDept = filterDept === 'ALL' || emp.department === filterDept;
+
+                if (matchSearch && matchDept) {
+                    renderedCount++;
+                    const isActive = emp.is_active !== false;
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-50/80 transition duration-100";
+                    row.innerHTML = `
+                        <td class="px-6 py-4 font-mono text-xs text-slate-500 font-semibold">#${emp.id || index + 1}</td>
+                        <td class="px-6 py-4">
+                            <div class="font-semibold text-slate-900">${escapeHtml(emp.name)}</div>
+                            <div class="text-xs text-slate-400 font-mono">${escapeHtml(emp.email || 'No email declared')}</div>
+                        </td>
+                        <td class="px-6 py-4 text-xs">
+                            <div class="font-medium text-slate-800">${escapeHtml(emp.designation)}</div>
+                            <div class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-600 font-semibold text-[10px] mt-1">${escapeHtml(emp.department || 'Operations')}</div>
+                        </td>
+                        <td class="px-6 py-4 text-xs font-mono font-medium text-slate-700">
+                            ₹${emp.salary_per_day || 1000}/day
+                        </td>
+                        <td class="px-6 py-4 font-mono font-bold text-teal-600 text-sm">
+                            <span class="bg-teal-50 px-2 py-0.5 rounded border border-teal-100 select-all">${escapeHtml(emp.password || '1234')}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${isActive ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-rose-100 text-rose-800 border border-rose-200'}">
+                                <span class="h-1.5 w-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-rose-500'} mr-1.5"></span>
+                                ${isActive ? 'Active' : 'Locked'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right space-x-1.5 whitespace-nowrap">
+                            <button onclick="openEmployeeModal(${index})" class="text-slate-600 hover:text-teal-600 hover:bg-slate-100 p-2 rounded-lg transition">
+                                <i class="fa-solid fa-user-pen"></i>
+                            </button>
+                            <button onclick="deleteEmployee(${index})" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-2 rounded-lg transition">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            });
+
+            if (renderedCount === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-2xl mb-2"></i>
+                            <p class="text-xs">No elements matched your current filter keywords.</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function openEmployeeModal(index = -1) {
+            const modal = document.getElementById('employeeModal');
+            document.getElementById('modalEmpIndex').value = index;
+
+            if (index === -1) {
+                // New employee reset
+                document.getElementById('modalEmployeeTitle').textContent = "Register Enterprise Employee";
+                
+                // Auto generate an ID larger than the largest present
+                const maxId = (appState.remote_employees || []).reduce((max, cur) => Math.max(max, parseInt(cur.id) || 0), 0);
+                document.getElementById('modalEmpId').value = maxId + 1;
+                document.getElementById('modalEmpName').value = '';
+                document.getElementById('modalEmpDesignation').value = '';
+                document.getElementById('modalEmpDept').value = 'Engineering';
+                document.getElementById('modalEmpEmail').value = '';
+                document.getElementById('modalEmpPhone').value = '';
+                document.getElementById('modalEmpSalary').value = '1000';
+                
+                // Default Join date as today
+                const nowStr = new Date().toISOString().split('T')[0];
+                document.getElementById('modalEmpJoinDate').value = nowStr;
+                document.getElementById('modalEmpPassword').value = Math.floor(1000 + Math.random() * 9000).toString(); // random 4 digit PIN
+                document.getElementById('modalEmpActive').value = 'true';
+            } else {
+                // Edit existing
+                document.getElementById('modalEmployeeTitle').textContent = "Edit Personnel Registry";
+                const emp = appState.remote_employees[index];
+                
+                document.getElementById('modalEmpId').value = emp.id || (index + 1);
+                document.getElementById('modalEmpName').value = emp.name || '';
+                document.getElementById('modalEmpDesignation').value = emp.designation || '';
+                document.getElementById('modalEmpDept').value = emp.department || 'Operations';
+                document.getElementById('modalEmpEmail').value = emp.email || '';
+                document.getElementById('modalEmpPhone').value = emp.phone || '';
+                document.getElementById('modalEmpSalary').value = emp.salary_per_day || 1000;
+                document.getElementById('modalEmpJoinDate').value = emp.join_date || '';
+                document.getElementById('modalEmpPassword').value = emp.password || '1234';
+                document.getElementById('modalEmpActive').value = emp.is_active !== false ? 'true' : 'false';
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeEmployeeModal() {
+            document.getElementById('employeeModal').classList.add('hidden');
+        }
+
+        function saveEmployeeData() {
+            const index = parseInt(document.getElementById('modalEmpIndex').value);
+            const idVal = parseInt(document.getElementById('modalEmpId').value) || 1;
+            const name = document.getElementById('modalEmpName').value.trim();
+            const designation = document.getElementById('modalEmpDesignation').value.trim();
+            const department = document.getElementById('modalEmpDept').value;
+            const email = document.getElementById('modalEmpEmail').value.trim();
+            const phone = document.getElementById('modalEmpPhone').value.trim();
+            const salaryPerDay = parseFloat(document.getElementById('modalEmpSalary').value) || 1000.0;
+            const joinDate = document.getElementById('modalEmpJoinDate').value;
+            const password = document.getElementById('modalEmpPassword').value.trim() || '1234';
+            const isActive = document.getElementById('modalEmpActive').value === 'true';
+
+            if (!name || !designation) {
+                alert('Please supply Name and Designation fields.');
+                return;
+            }
+
+            const empObj = {
+                id: idVal,
+                name: name,
+                designation: designation,
+                department: department,
+                email: email,
+                phone: phone,
+                salary_per_day: salaryPerDay,
+                join_date: joinDate,
+                is_active: isActive,
+                password: password
+            };
+
+            if (!appState.remote_employees) appState.remote_employees = [];
+
+            if (index === -1) {
+                // Check if ID already exists to avoid collisions
+                const collision = appState.remote_employees.some(e => e.id === idVal);
+                if (collision) {
+                    alert(`Employee ID #${idVal} is already held in the system registry! Declare another number.`);
+                    return;
+                }
+                appState.remote_employees.push(empObj);
+                showAlert('success', 'Roster Slot Created', `Registered new employee ${name} successfully! Click Cloud Sync option to apply.`);
+            } else {
+                appState.remote_employees[index] = empObj;
+                showAlert('success', 'Roster Modified', `Saved changes to ${name}'s registry state.`);
+            }
+
+            closeEmployeeModal();
+            updateUIsFromState();
+        }
+
+        function deleteEmployee(index) {
+            const empName = appState.remote_employees[index].name;
+            if (confirm(`Are you sure you want to remove ${empName} from active employee registers permanently?`)) {
+                appState.remote_employees.splice(index, 1);
+                showAlert('success', 'Employee Register Purged', `Successfully disconnected ${empName} database files.`);
+                updateUIsFromState();
+            }
+        }
+
+        // --- ANNOUNCEMENTS BULLETIN ---
+        function renderAnnList() {
+            const grid = document.getElementById('announcementGrid');
+            grid.innerHTML = '';
+
+            const anns = appState.announcements || [];
+            if (anns.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-1 md:col-span-2 bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-400">
+                        <i class="fa-solid fa-bullhorn text-2xl mb-2 text-slate-300"></i>
+                        <p class="text-xs">No active bulletins posted. Tap New Announcement to push notifications.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            anns.forEach((ann, index) => {
+                let badgeClass = "bg-slate-100 text-slate-800 border-slate-200";
+                if (ann.category === 'Alert') badgeClass = "bg-rose-50 text-rose-800 border-rose-200/60";
+                if (ann.category === 'Holiday') badgeClass = "bg-amber-50 text-amber-800 border-amber-200/60";
+                if (ann.category === 'Event') badgeClass = "bg-teal-50 text-teal-800 border-teal-200/60";
+
+                const isHigh = ann.priority === 'High';
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative flex flex-col justify-between hover:border-teal-500/35 transition";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3 text-xs">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded border font-semibold tracking-wide ${badgeClass}">${escapeHtml(ann.category || 'General')}</span>
+                            <span class="text-slate-400 font-mono">${escapeHtml(ann.date)}</span>
+                        </div>
+                        <h4 class="font-display font-bold text-slate-900 text-base leading-tight mb-2 flex items-center space-x-1.5">
+                            ${isHigh ? '<i class="fa-solid fa-circle-exclamation text-rose-500 text-xs"></i>' : ''}
+                            <span>${escapeHtml(ann.title)}</span>
+                        </h4>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-6 whitespace-pre-wrap">${escapeHtml(ann.content)}</p>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t border-slate-100 mt-auto">
+                        <span class="text-[10px] font-semibold tracking-wider uppercase ${isHigh ? 'text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded' : 'text-slate-400'}">
+                            ${isHigh ? 'URGENT CORE' : 'Standard Broadcast'}
+                        </span>
+                        <div class="space-x-1">
+                            <button onclick="openAnnModal(${index})" class="text-slate-400 hover:text-teal-600 p-1.5 hover:bg-slate-50 rounded-lg transition text-xs">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteAnn(${index})" class="text-rose-400 hover:text-rose-600 p-1.5 hover:bg-rose-50 rounded-lg transition text-xs">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openAnnModal(index = -1) {
+            const modal = document.getElementById('annModal');
+            document.getElementById('modalAnnIndex').value = index;
+
+            if (index === -1) {
+                document.getElementById('modalAnnTitle').textContent = "Launch Broadcast Announcement";
+                document.getElementById('modalAnnHeader').value = '';
+                document.getElementById('modalAnnContent').value = '';
+                document.getElementById('modalAnnCat').value = 'General';
+                document.getElementById('modalAnnPriority').value = 'Normal';
+            } else {
+                document.getElementById('modalAnnTitle').textContent = "Edit Broadcast Post";
+                const ann = appState.announcements[index];
+                document.getElementById('modalAnnHeader').value = ann.title || '';
+                document.getElementById('modalAnnContent').value = ann.content || '';
+                document.getElementById('modalAnnCat').value = ann.category || 'General';
+                document.getElementById('modalAnnPriority').value = ann.priority || 'Normal';
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeAnnModal() {
+            document.getElementById('annModal').classList.add('hidden');
+        }
+
+        function saveAnnData() {
+            const index = parseInt(document.getElementById('modalAnnIndex').value);
+            const title = document.getElementById('modalAnnHeader').value.trim();
+            const content = document.getElementById('modalAnnContent').value.trim();
+            const category = document.getElementById('modalAnnCat').value;
+            const priority = document.getElementById('modalAnnPriority').value;
+
+            if (!title || !content) {
+                alert('Both Bulletin Title and Broadcast Details cannot be empty.');
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            const maxId = (appState.announcements || []).reduce((max, cur) => Math.max(max, cur.id || 0), 0);
+
+            const annObj = {
+                id: index === -1 ? maxId + 1 : appState.announcements[index].id,
+                title: title,
+                content: content,
+                date: today,
+                category: category,
+                priority: priority
+            };
+
+            if (!appState.announcements) appState.announcements = [];
+
+            if (index === -1) {
+                appState.announcements.unshift(annObj); // Newest announcement to top!
+                showAlert('success', 'Broadcast Created', 'New news bulletin launched! Remember to push changes to GitHub to update live apps.');
+            } else {
+                // Keep original date if exists
+                annObj.date = appState.announcements[index].date || today;
+                appState.announcements[index] = annObj;
+                showAlert('success', 'Broadcast Updated', 'Edited announcement details completed.');
+            }
+
+            closeAnnModal();
+            updateUIsFromState();
+        }
+
+        function deleteAnn(index) {
+            const annTitle = appState.announcements[index].title;
+            if (confirm(`Do you wish to pull down broadcast: ${annTitle}?`)) {
+                appState.announcements.splice(index, 1);
+                showAlert('success', 'Bulletin Pulled Down', 'Notice stripped from database registers.');
+                updateUIsFromState();
+            }
+        }
+
+        // --- PAYLOAD JSON VIEW ---
+        function updateJsonPreview() {
+            const codeBox = document.getElementById('jsonPreviewBox');
+            codeBox.textContent = JSON.stringify(appState, null, 2);
+        }
+
+        function copyGeneratedJSON() {
+            const val = JSON.stringify(appState, null, 2);
+            navigator.clipboard.writeText(val);
+            showAlert('success', 'JSON Copied to Clipboard', 'You can directly paste this raw text into your GitHub configuration repository file!');
+        }
+
+        // --- SUB-HELPER WRAPPERS ---
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>

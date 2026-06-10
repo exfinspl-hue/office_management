@@ -13,6 +13,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -104,6 +106,25 @@ class OfficeViewModel(application: Application) : AndroidViewModel(application) 
 
     private val _isSyncing = MutableStateFlow(false)
     val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
+
+    // --- Direct GitHub Integration State ---
+    private val _githubToken = MutableStateFlow("")
+    val githubToken: StateFlow<String> = _githubToken.asStateFlow()
+
+    private val _githubRepo = MutableStateFlow("")
+    val githubRepo: StateFlow<String> = _githubRepo.asStateFlow()
+
+    private val _githubBranch = MutableStateFlow("main")
+    val githubBranch: StateFlow<String> = _githubBranch.asStateFlow()
+
+    private val _githubPath = MutableStateFlow("dynamic_config.json")
+    val githubPath: StateFlow<String> = _githubPath.asStateFlow()
+
+    private val _githubPushState = MutableStateFlow<String?>(null)
+    val githubPushState: StateFlow<String?> = _githubPushState.asStateFlow()
+
+    private val _isPushingToGithub = MutableStateFlow(false)
+    val isPushingToGithub: StateFlow<Boolean> = _isPushingToGithub.asStateFlow()
 
     init {
         loadSettings()
@@ -258,6 +279,64 @@ class OfficeViewModel(application: Application) : AndroidViewModel(application) 
         _syncResultState.value = null
     }
 
+    fun generateCurrentStateJSON(onReady: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val json = org.json.JSONObject()
+
+                // 1. Announcements
+                val annArr = org.json.JSONArray()
+                _announcements.value.forEach { ann ->
+                    val annObj = org.json.JSONObject()
+                    annObj.put("id", ann.id)
+                    annObj.put("title", ann.title)
+                    annObj.put("content", ann.content)
+                    annObj.put("date", ann.date)
+                    annObj.put("category", ann.category)
+                    annObj.put("priority", ann.priority)
+                    annArr.put(annObj)
+                }
+                json.put("announcements", annArr)
+
+                // 2. Company Settings
+                val settingsObj = org.json.JSONObject()
+                settingsObj.put("company_name", _companyName.value)
+                settingsObj.put("working_hours_start", _workingHoursStart.value)
+                settingsObj.put("working_hours_end", _workingHoursEnd.value)
+                settingsObj.put("working_days_per_week", _workingDaysPerWeek.value)
+                settingsObj.put("overtime_multiplier", _overtimeMultiplier.value)
+                
+                val holidaysCsv = _holidays.value.joinToString(",")
+                settingsObj.put("holidays_list", holidaysCsv)
+                json.put("company_settings", settingsObj)
+
+                // 3. Employees (Roster)
+                val empArray = org.json.JSONArray()
+                val localEmps = repository.allEmployees.first()
+                localEmps.forEach { emp ->
+                    val empObj = org.json.JSONObject()
+                    empObj.put("id", emp.id)
+                    empObj.put("name", emp.name)
+                    empObj.put("designation", emp.designation)
+                    empObj.put("department", emp.department)
+                    empObj.put("email", emp.email)
+                    empObj.put("phone", emp.phone)
+                    empObj.put("salary_per_day", emp.salaryPerDay)
+                    empObj.put("join_date", emp.joinDate)
+                    empObj.put("is_active", emp.isActive)
+                    empObj.put("password", emp.password)
+                    empArray.put(empObj)
+                }
+                json.put("remote_employees", empArray)
+
+                val prettyJSON = json.toString(2)
+                onReady(prettyJSON)
+            } catch (e: Exception) {
+                onReady("Error generating configuration JSON: ${e.localizedMessage}")
+            }
+        }
+    }
+
     // --- Settings & Auth Logic ---
     private fun loadSettings() {
         _adminName.value = prefs.getString("admin_name", "Admin") ?: "Admin"
@@ -277,6 +356,190 @@ class OfficeViewModel(application: Application) : AndroidViewModel(application) 
         val savedPortalId = prefs.getInt("portal_employee_id", -1)
         if (savedPortalId != -1) {
             _portalEmployeeId.value = savedPortalId
+        }
+
+        // Load GitHub integration settings
+        _githubToken.value = prefs.getString("github_token", "") ?: ""
+        _githubRepo.value = prefs.getString("github_repo", "") ?: ""
+        _githubBranch.value = prefs.getString("github_branch", "main") ?: "main"
+        _githubPath.value = prefs.getString("github_path", "dynamic_config.json") ?: "dynamic_config.json"
+    }
+
+    fun updateGithubSettings(token: String, repo: String, branch: String, path: String) {
+        prefs.edit().apply {
+            putString("github_token", token)
+            putString("github_repo", repo)
+            putString("github_branch", branch)
+            putString("github_path", path)
+            apply()
+        }
+        _githubToken.value = token
+        _githubRepo.value = repo
+        _githubBranch.value = branch
+        _githubPath.value = path
+    }
+
+    fun clearGithubPushState() {
+        _githubPushState.value = null
+    }
+
+    fun pushCurrentStateToGitHub(onFinished: (Boolean, String) -> Unit) {
+        val token = _githubToken.value.trim()
+        val repo = _githubRepo.value.trim()
+        val branch = _githubBranch.value.trim()
+        val path = _githubPath.value.trim()
+
+        if (token.isEmpty() || repo.isEmpty() || branch.isEmpty() || path.isEmpty()) {
+            _githubPushState.value = "Error: Please fill in all GitHub connection fields."
+            onFinished(false, "Please fill in all GitHub connection fields.")
+            return
+        }
+
+        _isPushingToGithub.value = true
+        _githubPushState.value = "Generating local JSON payload..."
+
+        viewModelScope.launch {
+            try {
+                // Generate state JSON using IO thread
+                var jsonStr = ""
+                withContext(Dispatchers.IO) {
+                    val json = org.json.JSONObject()
+
+                    // Announcements
+                    val annArr = org.json.JSONArray()
+                    _announcements.value.forEach { ann ->
+                        val annObj = org.json.JSONObject()
+                        annObj.put("id", ann.id)
+                        annObj.put("title", ann.title)
+                        annObj.put("content", ann.content)
+                        annObj.put("date", ann.date)
+                        annObj.put("category", ann.category)
+                        annObj.put("priority", ann.priority)
+                        annArr.put(annObj)
+                    }
+                    json.put("announcements", annArr)
+
+                    // Company Settings
+                    val settingsObj = org.json.JSONObject()
+                    settingsObj.put("company_name", _companyName.value)
+                    settingsObj.put("working_hours_start", _workingHoursStart.value)
+                    settingsObj.put("working_hours_end", _workingHoursEnd.value)
+                    settingsObj.put("working_days_per_week", _workingDaysPerWeek.value)
+                    settingsObj.put("overtime_multiplier", _overtimeMultiplier.value)
+                    
+                    val holidaysCsv = _holidays.value.joinToString(",")
+                    settingsObj.put("holidays_list", holidaysCsv)
+                    json.put("company_settings", settingsObj)
+
+                    // Employees
+                    val empArray = org.json.JSONArray()
+                    val localEmps = repository.allEmployees.first()
+                    localEmps.forEach { emp ->
+                        val empObj = org.json.JSONObject()
+                        empObj.put("id", emp.id)
+                        empObj.put("name", emp.name)
+                        empObj.put("designation", emp.designation)
+                        empObj.put("department", emp.department)
+                        empObj.put("email", emp.email)
+                        empObj.put("phone", emp.phone)
+                        empObj.put("salary_per_day", emp.salaryPerDay)
+                        empObj.put("join_date", emp.joinDate)
+                        empObj.put("is_active", emp.isActive)
+                        empObj.put("password", emp.password)
+                        empArray.put(empObj)
+                    }
+                    json.put("remote_employees", empArray)
+                    jsonStr = json.toString(2)
+
+                    val client = okhttp3.OkHttpClient.Builder()
+                        .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                        .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                        .build()
+
+                    withContext(Dispatchers.Main) {
+                        _githubPushState.value = "Fetching current file SHA from GitHub..."
+                    }
+
+                    // Fetch file SHA
+                    val getUrl = "https://api.github.com/repos/$repo/contents/$path?ref=$branch"
+                    val getRequest = okhttp3.Request.Builder()
+                        .url(getUrl)
+                        .header("Authorization", "Bearer $token")
+                        .header("Accept", "application/vnd.github+json")
+                        .build()
+
+                    var existingSha: String? = null
+                    try {
+                        client.newCall(getRequest).execute().use { response ->
+                            if (response.isSuccessful) {
+                                val body = response.body?.string()
+                                if (!body.isNullOrEmpty()) {
+                                    val jsonResponse = org.json.JSONObject(body)
+                                    existingSha = jsonResponse.optString("sha", null)
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.w("OfficeViewModel", "No existing file found on GitHub (will create a new file): ${e.localizedMessage}")
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        _githubPushState.value = "Uploading updated configuration to GitHub..."
+                    }
+
+                    // Prepare update body
+                    val base64Content = android.util.Base64.encodeToString(
+                        jsonStr.toByteArray(Charsets.UTF_8),
+                        android.util.Base64.NO_WRAP
+                    )
+
+                    val putBodyJson = org.json.JSONObject().apply {
+                        put("message", "dynamic_config.json update from OfficePro App Admin Panel")
+                        put("content", base64Content)
+                        put("branch", branch)
+                        if (existingSha != null) {
+                            put("sha", existingSha)
+                        }
+                    }
+
+                    val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+                    val putBody = putBodyJson.toString().toRequestBody(mediaType)
+
+                    val putUrl = "https://api.github.com/repos/$repo/contents/$path"
+                    val putRequest = okhttp3.Request.Builder()
+                        .url(putUrl)
+                        .header("Authorization", "Bearer $token")
+                        .header("Accept", "application/vnd.github+json")
+                        .put(putBody)
+                        .build()
+
+                    client.newCall(putRequest).execute().use { response ->
+                        val responseBody = response.body?.string() ?: ""
+                        if (response.isSuccessful) {
+                            withContext(Dispatchers.Main) {
+                                _githubPushState.value = "Success: Configuration successfully pushed to GitHub!"
+                                onFinished(true, "Successfully updated GitHub file: $path")
+                            }
+                        } else {
+                            val errObj = try { org.json.JSONObject(responseBody) } catch (e: Exception) { null }
+                            val errMsg = errObj?.optString("message", "HTTP code: ${response.code}") ?: "HTTP code: ${response.code}"
+                            withContext(Dispatchers.Main) {
+                                _githubPushState.value = "Failed: $errMsg"
+                                onFinished(false, errMsg)
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _githubPushState.value = "Error: ${e.localizedMessage}"
+                    onFinished(false, e.localizedMessage ?: "Unknown network error")
+                }
+            } finally {
+                withContext(Dispatchers.Main) {
+                    _isPushingToGithub.value = false
+                }
+            }
         }
     }
 
