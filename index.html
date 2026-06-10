@@ -214,6 +214,60 @@
                     </div>
                 </div>
 
+                <!-- Direct Management Shortcuts -->
+                <div class="space-y-4 pt-2">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-nodes text-teal-600 text-lg"></i>
+                        <h3 class="font-display font-bold text-lg text-slate-900">2. Quick Portal Features</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Employee Roster Card -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4 hover:shadow-md transition duration-150 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="bg-teal-50 text-teal-700 w-10 h-10 rounded-xl flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-id-card-clip"></i>
+                                </div>
+                                <h4 class="font-display font-bold text-slate-900 text-base">Employee Roster</h4>
+                                <p class="text-xs text-slate-500 leading-relaxed">Register corporate accounts, system passwords PIN, base wages, and designations. Updates live in real-time.</p>
+                            </div>
+                            <button onclick="switchSection('roster')" class="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white text-xs py-2.5 rounded-lg font-semibold transition flex items-center justify-center space-x-1 shadow-sm">
+                                <span>Go to Employee Roster</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+
+                        <!-- Company Rules Card -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4 hover:shadow-md transition duration-150 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="bg-slate-50 text-slate-700 w-10 h-10 rounded-xl flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-gears"></i>
+                                </div>
+                                <h4 class="font-display font-bold text-slate-900 text-base">Company Rules</h4>
+                                <p class="text-xs text-slate-500 leading-relaxed">Edit work shifts (timings), standard working days count, holiday dates, and overtime pricing modifiers.</p>
+                            </div>
+                            <button onclick="switchSection('settings')" class="w-full mt-4 bg-slate-950 hover:bg-slate-900 text-white text-xs py-2.5 rounded-lg font-semibold transition flex items-center justify-center space-x-1 shadow-sm">
+                                <span>Go to Company Rules</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+
+                        <!-- Broadcast Card -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4 hover:shadow-md transition duration-150 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="bg-amber-50 text-amber-700 w-10 h-10 rounded-xl flex items-center justify-center text-lg">
+                                    <i class="fa-regular fa-bell"></i>
+                                </div>
+                                <h4 class="font-display font-bold text-slate-900 text-base">Broadcast Bulletins</h4>
+                                <p class="text-xs text-slate-500 leading-relaxed">Post announcements, events, and urgent alert warnings directly on the employee app landing screen.</p>
+                            </div>
+                            <button onclick="switchSection('announcements')" class="w-full mt-4 bg-amber-600 hover:bg-amber-700 text-white text-xs py-2.5 rounded-lg font-semibold transition flex items-center justify-center space-x-1 shadow-sm">
+                                <span>Go to Announcements</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tutorial Steps -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
                     <h3 class="font-display font-bold text-lg text-slate-900 flex items-center space-x-2">
@@ -693,7 +747,7 @@
             localStorage.setItem('op_gh_path', path);
 
             updateSyncBannerStatus(token, repo, branch, path);
-            showAlert('success', 'Credentials Saved Offline', 'Connection credentials are saved securely in your web browser environment.');
+            showAlert('success', 'Credentials Saved Offline', 'Connection credentials are saved securely in your web browser! You can now use the sidebar menu or the "Quick Portal Features" shortcuts below to manage your data, then click "Push Configuration" to sync worldwide.');
         }
 
         function updateSyncBannerStatus(token, repo, branch, path) {
@@ -803,9 +857,9 @@
                     
                     appState = parsedState;
                     updateUIsFromState();
-                    showAlert('success', 'Remote Sync Successful', 'Loaded latest active announcements, user lists, and schedule rosters directly from GitHub!');
+                    showAlert('success', 'Remote Sync Successful', 'Success! Loaded latest active announcements, user lists, and schedule rosters from GitHub. You can now use the sidebar or click the shortcuts below to configure rules and manage rosters right away!');
                 } else if (response.status === 404) {
-                    showAlert('info', 'File Not Initiated', 'The selected configuration file does not exist on your branch yet. Your current template layout will create a brand new file when you push!');
+                    showAlert('info', 'First-Time Setup (Ready to Sync)', 'The file "dynamic_config.json" does not exist in your repository yet. This is normal and expected! You are successfully connected. Use the shortcuts below to customize your Employee Roster, Company Rules, or Announcements, then click "Push Configuration" to save them to your repository.');
                     currentFileSha = null;
                 } else {
                     const errPayload = await response.json();
