@@ -1,0 +1,6 @@
+{
+  "name": "Office Management System",
+  "description": "An all-in-one native Office Management System with Employee Attendance Tracking, Payslips, and rich visual Analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
