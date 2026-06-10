@@ -160,19 +160,23 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Personal Access Token (PAT) <span class="text-red-500">*</span></label>
-                                <input id="ghTokenInput" type="password" placeholder="ghp_xxxxxxxxxxxx" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                                <input id="ghTokenInput" type="password" oninput="handleConfigInput()" placeholder="ghp_xxxxxxxxxxxx" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                                <span class="text-[10px] text-slate-400 mt-1 block">Requires a classic PAT with <strong class="text-teal-600 font-medium">repo</strong> scope enabled.</span>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">GitHub Repository (owner/name) <span class="text-red-500">*</span></label>
-                                <input id="ghRepoInput" type="text" placeholder="username/my-office-repo" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                                <input id="ghRepoInput" type="text" oninput="handleConfigInput()" placeholder="username/my-office-repo" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                                <span class="text-[10px] text-slate-400 mt-1 block">e.g., <strong class="text-slate-600 font-medium">your-github-username/your-repo-name</strong></span>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Target Branch</label>
-                                <input id="ghBranchInput" type="text" value="main" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                                <input id="ghBranchInput" type="text" oninput="handleConfigInput()" value="main" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                                <span class="text-[10px] text-slate-400 mt-1 block">Defaults to <strong class="text-slate-600 font-medium font-mono">main</strong>.</span>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">JSON File Path</label>
-                                <input id="ghPathInput" type="text" value="dynamic_config.json" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                                <input id="ghPathInput" type="text" oninput="handleConfigInput()" value="dynamic_config.json" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                                <span class="text-[10px] text-slate-400 mt-1 block">File name inside repository for OTA database.</span>
                             </div>
                         </div>
 
@@ -629,6 +633,28 @@
             updateSyncBannerStatus(token, repo, branch, path);
         }
 
+        function handleConfigInput() {
+            const token = document.getElementById('ghTokenInput').value.trim();
+            const repo = document.getElementById('ghRepoInput').value.trim();
+            const branch = document.getElementById('ghBranchInput').value.trim();
+            const path = document.getElementById('ghPathInput').value.trim();
+
+            localStorage.setItem('op_gh_token', token);
+            localStorage.setItem('op_gh_repo', repo);
+            localStorage.setItem('op_gh_branch', branch);
+            localStorage.setItem('op_gh_path', path);
+
+            // Clean error classes if resolved
+            if (token) {
+                document.getElementById('ghTokenInput').classList.remove('border-red-500', 'ring-2', 'ring-red-100');
+            }
+            if (repo) {
+                document.getElementById('ghRepoInput').classList.remove('border-red-500', 'ring-2', 'ring-red-100');
+            }
+
+            updateSyncBannerStatus(token, repo, branch, path);
+        }
+
         function saveSetupInfo() {
             const token = document.getElementById('ghTokenInput').value.trim();
             const repo = document.getElementById('ghRepoInput').value.trim();
@@ -708,8 +734,26 @@
             const branch = document.getElementById('ghBranchInput').value.trim();
             const path = document.getElementById('ghPathInput').value.trim();
 
-            if (!token || !repo) {
-                showAlert('error', 'Authentication Error', 'You must supply a GitHub PAT token and Repository owner/pathname to connect.');
+            // Auto-persist inputs on action trigger
+            localStorage.setItem('op_gh_token', token);
+            localStorage.setItem('op_gh_repo', repo);
+            localStorage.setItem('op_gh_branch', branch);
+            localStorage.setItem('op_gh_path', path);
+            updateSyncBannerStatus(token, repo, branch, path);
+
+            // Detailed validation check
+            let missingFields = [];
+            if (!token) {
+                missingFields.push("Personal Access Token (PAT)");
+                document.getElementById('ghTokenInput').classList.add('border-red-500', 'ring-2', 'ring-red-100');
+            }
+            if (!repo) {
+                missingFields.push("GitHub Repository (owner/name)");
+                document.getElementById('ghRepoInput').classList.add('border-red-500', 'ring-2', 'ring-red-100');
+            }
+
+            if (missingFields.length > 0) {
+                showAlert('error', 'Fields Required', 'Verification failed: missing ' + missingFields.join(' and ') + '. Please make sure you enter both values correctly (including your username/repository-name).');
                 return;
             }
 
