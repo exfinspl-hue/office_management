@@ -1,3 +1,5 @@
+import java.util.Base64
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
@@ -6,14 +8,28 @@ plugins {
   alias(libs.plugins.secrets)
 }
 
+// Decode the debug.keystore if it doesn't exist
+val base64File = file("${rootDir}/debug.keystore.base64")
+val keystoreFile = file("${rootDir}/debug.keystore")
+if (base64File.exists() && !keystoreFile.exists()) {
+  try {
+    val base64Content = base64File.readText().replace("\\s".toRegex(), "")
+    val decodedBytes = Base64.getDecoder().decode(base64Content)
+    keystoreFile.writeBytes(decodedBytes)
+    println("Successfully decoded debug.keystore from debug.keystore.base64")
+  } catch (e: Exception) {
+    println("Warning: Failed to decode debug.keystore: ${e.message}")
+  }
+}
+
 android {
   namespace = "com.example"
-  compileSdk { version = release(36) { minorApiLevel = 1 } }
+  compileSdk = 35
 
   defaultConfig {
     applicationId = "com.aistudio.officemanagementsystem.kypqrz"
     minSdk = 24
-    targetSdk = 36
+    targetSdk = 35
     versionCode = 1
     versionName = "1.0"
 
@@ -119,3 +135,22 @@ dependencies {
   "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
 }
+
+tasks.register<Copy>("copyToBuildOutputs") {
+  dependsOn("assembleDebug")
+  from(layout.buildDirectory.file("outputs/apk/debug/app-debug.apk"))
+  into(file("${rootDir}/.build-outputs"))
+}
+
+tasks.register<Copy>("copyToApkDownload") {
+  dependsOn("assembleDebug")
+  from(layout.buildDirectory.file("outputs/apk/debug/app-debug.apk"))
+  into(file("${rootDir}/APK_DOWNLOAD"))
+}
+
+tasks.register("copyApkAll") {
+  dependsOn("copyToBuildOutputs", "copyToApkDownload")
+}
+
+
+
