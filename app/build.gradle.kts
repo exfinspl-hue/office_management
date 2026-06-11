@@ -1,4 +1,9 @@
 import java.util.Base64
+import java.net.URL
+import java.net.HttpURLConnection
+import java.io.FileInputStream
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 plugins {
   alias(libs.plugins.android.application)
@@ -69,6 +74,9 @@ android {
       }
     }
     debug {
+      isMinifyEnabled = true
+      isShrinkResources = true
+      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       signingConfig = signingConfigs.getByName("debugConfig")
     }
   }
@@ -160,6 +168,11 @@ tasks.register<Copy>("copyToApkDownload") {
 tasks.register("copyApkAll") {
   dependsOn("copyToBuildOutputs", "copyToApkDownload")
 }
+
+// uploadApk removed
+
+
+
 
 
 
